@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FanIn-Fanout": {
+      "commandName": "Project",
+      "commandLineArgs": "Sync"
+    }
+  }
+}

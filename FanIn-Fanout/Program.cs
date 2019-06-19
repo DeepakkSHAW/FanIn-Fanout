@@ -15,7 +15,8 @@ namespace FanIn_Fanout
         Change to C# 7.1 in Advanced Build option from Project properties **/
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Welcome to FanIn Fanout Asynchronous programming demo!");
+            Console.ForegroundColor = ConsoleColor.Green; Console.WriteLine("▄▀▄▀█▓▒░W░E░L░C░O░M░E░▒▓█▀▄▀▄"); Console.ResetColor();
+            Console.WriteLine("To FanIn Fanout Asynchronous programming demo!");
 
             StringBuilder sbInputMessage = new StringBuilder("Please selection the operation from the list:");
             foreach (var item in Enum.GetNames(typeof(runOptions)))

@@ -36,7 +36,7 @@ namespace FanIn_Fanout
 
             return urlCollection;
         }
-        internal static WebsiteDataModel DownloadWebsite(string websiteURL)
+        internal static WebsiteDataModel WsDownloadSycn(string websiteURL)
         {
             WebsiteDataModel output = new WebsiteDataModel();
             WebClient client = new WebClient();
@@ -46,37 +46,81 @@ namespace FanIn_Fanout
 
             return output;
         }
+        internal static async Task<WebsiteDataModel> WsDownloadAsycn(string websiteURL)
+        {
+            WebsiteDataModel output = new WebsiteDataModel();
+            WebClient client = new WebClient();
+
+            output.WebsiteUrl = websiteURL;
+            output.WebsiteData = await client.DownloadStringTaskAsync(websiteURL);
+
+            return output;
+        }
+        internal static async Task<WebsiteDataModel> WsDownloadPrallelAsycn(string websiteURL)
+        {
+            System.Diagnostics.Debug.WriteLine(websiteURL);
+            Console.WriteLine($"[{DateTime.UtcNow.Second}.{DateTime.UtcNow.Millisecond}] " +
+                $"Download started for {websiteURL}");
+                //$"Download started for {websiteURL.Substring(0,websiteURL.IndexOf('/',8))}");
+            
+            WebsiteDataModel output = new WebsiteDataModel();
+            WebClient client = new WebClient();
+
+            output.WebsiteUrl = websiteURL;
+            output.WebsiteData = await client.DownloadStringTaskAsync(websiteURL);
+            //Console.WriteLine($"..completed[{DateTime.UtcNow.Second}.{DateTime.UtcNow.Millisecond}].");
+            return output;
+        }
 
         #endregion
-        public static List<WebsiteDataModel> RunDownloadSync()
+        public static List<WebsiteDataModel> RunWebSiteDownloadSync()
         {
             List<string> websites = GetURLs();
             List<WebsiteDataModel> output = new List<WebsiteDataModel>();
             Console.WriteLine("download is in progress for site.. ");
             foreach (string site in websites)
             {
-                Console.Write($"Download started for {site}");
-                WebsiteDataModel results = DownloadWebsite(site);
-                Console.WriteLine($"..completed.");
+                Console.Write($"[{DateTime.UtcNow.Second}.{DateTime.UtcNow.Millisecond}] Download started for {site}");
+                WebsiteDataModel results = WsDownloadSycn(site);
+                Console.WriteLine($"..completed [{DateTime.UtcNow.Second}.{DateTime.UtcNow.Millisecond}].");
                 output.Add(results);
             }
             return output;
         }
-        //public static List<WebsiteDataModel> RunDownloadAsync()
-        public static async Task<List<WebsiteDataModel>> RunDownloadAsync()
+        public static async Task<List<WebsiteDataModel>> RunWebSiteDownloadAsync()
         {
             List<string> websites = GetURLs();
             List<WebsiteDataModel> output = new List<WebsiteDataModel>();
             Console.WriteLine("download is in progress for site.. ");
             foreach (string site in websites)
             {
-                Console.Write($"Download started for {site}");
-                WebsiteDataModel results = await Task.Run(() => DownloadWebsite(site));
-                Console.WriteLine($"..completed.");
+                Console.Write($"[{DateTime.UtcNow.Second}.{DateTime.UtcNow.Millisecond}]Download started for {site}");
+                // WebsiteDataModel results = await Task.Run(() => DownloadWebsite(site));
+                WebsiteDataModel results = await WsDownloadAsycn(site);
+                 Console.WriteLine($"..completed[{DateTime.UtcNow.Second}.{DateTime.UtcNow.Millisecond}].");
                 output.Add(results);
             }
             return output;
-            //return "Ok";
+        }
+
+        //**FanIn Fanout Asynchronous Pattern**//
+        public static async Task<List<WebsiteDataModel>> RunWebSiteDownloadFanInOutAsync()
+        {
+            List<string> websites = GetURLs();
+            List<WebsiteDataModel> output = new List<WebsiteDataModel>();
+            List<Task<WebsiteDataModel>> dowloadTasks = new  List<Task<WebsiteDataModel>>();
+            Console.WriteLine("download is in progress for site.. ");
+            foreach (string site in websites)
+            {
+                Console.WriteLine($"[{DateTime.UtcNow.Second}.{DateTime.UtcNow.Millisecond}]Download initiated for {site}");
+                dowloadTasks.Add(WsDownloadPrallelAsycn(site));
+            }
+            var result = await Task.WhenAll(dowloadTasks);
+            foreach (var item in result)
+            {
+                output.Add(item);
+            }
+            return output;
         }
     }
 }

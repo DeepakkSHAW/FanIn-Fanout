@@ -15,7 +15,7 @@ namespace FanIn_Fanout
                 Console.WriteLine($"{ item.WebsiteUrl } downloaded: { item.WebsiteData.Length } characters long.{ Environment.NewLine }");
             }
         }
-        internal static void RepostWesSiteInfo(WebsiteDataModel dataModel)
+        internal static void ReportWebSiteInfo(WebsiteDataModel dataModel)
         {
             Console.WriteLine($"{ dataModel.WebsiteUrl } downloaded: { dataModel.WebsiteData.Length } characters long.{ Environment.NewLine }");
         }
